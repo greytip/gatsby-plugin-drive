@@ -3,17 +3,15 @@ const request = require('request');
 
 const getToken = ({ keyFile, key }) => {
   return new Promise((resolve, reject) => {
-    const scope = ['https://www.googleapis.com/auth/drive']
-    const gtoken = keyFile ?
-      new GoogleToken({
-        keyFile,
-        scope: scope
-      }) :
-      new GoogleToken({
-        email: key.client_email,
-        scope: scope,
-        key: key.private_key.replace(/(\\r)|(\\n)/g, '\n')
-      });
+    const scope = ['https://www.googleapis.com/auth/drive'];
+    const gtoken = keyFile ? new GoogleToken({
+      keyFile,
+      scope: scope
+    }) : new GoogleToken({
+      email: key.client_email,
+      scope: scope,
+      key: key.private_key.replace(/(\\r)|(\\n)/g, '\n')
+    });
 
     gtoken.getToken((err, token) => {
       if (err) {
@@ -25,26 +23,24 @@ const getToken = ({ keyFile, key }) => {
   });
 };
 
-const getFolder = (folderId, token) => {
+const getFolder = (folderId, token,pageSize) => {
+  apiUrl = `https://www.googleapis.com/drive/v3/files?includeItemsFromAllDrives=true&supportsAllDrives=true&pageSize=${pageSize}`
   return new Promise((resolve, reject) => {
-    request(
-      {
-        uri: `https://www.googleapis.com/drive/v3/files`,
-        auth: {
-          bearer: token,
-        },
-        qs: {
-          q: `'${folderId}' in parents`,
-        },
+    request({
+      uri: apiUrl,
+      auth: {
+        bearer: token
       },
-      (err, res, body) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(JSON.parse(body).files);
-        }
+      qs: {
+        q: `'${folderId}' in parents`
       }
-    );
+    }, (err, res, body) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(JSON.parse(body).files);
+      }
+    });
   });
 };
 
@@ -67,13 +63,13 @@ const getGDoc = (fileId, token, mimeType) => {
       }
     }, (err, res, body) => {
       if (err) {
-        reject(err)
+        reject(err);
       } else {
-        resolve(body)
+        resolve(body);
       }
-    })
-  })
-}
+    });
+  });
+};
 
 module.exports = {
   getToken,
@@ -83,18 +79,16 @@ module.exports = {
 };
 
 function requestFile(resolve, reject, fileId, token, delay) {
-  request(
-  {
+  request({
     uri: `https://www.googleapis.com/drive/v3/files/${fileId}`,
     auth: {
-      bearer: token,
+      bearer: token
     },
     encoding: null,
     qs: {
-      alt: 'media',
-    },
-  },
-  (err, res, body) => {
+      alt: 'media'
+    }
+  }, (err, res, body) => {
     if (err) {
       reject(err);
     } else if (res.statusCode == 403) {
