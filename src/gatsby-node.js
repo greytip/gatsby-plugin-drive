@@ -35,6 +35,7 @@ exports.onPreBootstrap = ({ graphql, actions }, { folderId, keyFile, key, destin
 };
 
 function recursiveFolders(array, parent = '', token, destination, pageSize) {
+  console.log("array: ", array);
   return new Promise(async (resolve, reject) => {
     let promises = [];
     let filesToDownload = shouldExportGDocs ? array : array.filter(file => file.mimeType !== GOOGLE_DOC && !file.name.startsWith('_'));
