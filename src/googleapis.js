@@ -2,7 +2,6 @@ const { GoogleToken } = require('gtoken');
 const request = require('request');
 
 const getToken = ({ keyFile, key }) => {
-  console.log("key: ", key);
   return new Promise((resolve, reject) => {
     const scope = ['https://www.googleapis.com/auth/drive'];
     const gtoken = keyFile ? new GoogleToken({
@@ -18,7 +17,6 @@ const getToken = ({ keyFile, key }) => {
       if (err) {
         reject(err);
       } else {
-        console.log("token: ", token);
         resolve(token.access_token);
       }
     });
@@ -26,7 +24,6 @@ const getToken = ({ keyFile, key }) => {
 };
 
 const getFolder = (folderId, token,pageSize) => {
-  console.log("access_token: ", token);
   apiUrl = `https://www.googleapis.com/drive/v3/files?includeItemsFromAllDrives=true&supportsAllDrives=true&pageSize=${pageSize}`
   return new Promise((resolve, reject) => {
     request({
@@ -39,10 +36,8 @@ const getFolder = (folderId, token,pageSize) => {
       }
     }, (err, res, body) => {
       if (err) {
-        console.log("error: ", err)
         reject(err);
       } else {
-        console.log("body: ", JSON.parse(body));
         resolve(JSON.parse(body).files);
       }
     });
